@@ -65,7 +65,7 @@ interface BuildInterface
      *
      * @param string $snippet
      */
-    function addPhpSnippet($snippet);
+    public function addPhpSnippet($snippet);
 
     /**
      * Adds a file to be dumped in the vendor/composer/ directory.
@@ -75,7 +75,7 @@ interface BuildInterface
      * @param string $contents
      *   File contents.
      */
-    function addFile($filename, $contents);
+    public function addFile($filename, $contents);
 
     /**
      * Adds a php source file to be dumped in the vendor/composer/ directory.
@@ -87,7 +87,7 @@ interface BuildInterface
      * @param string $php
      *   PHP code to follow after the headers.
      */
-    function addSourceFile($filename, $php);
+    public function addSourceFile($filename, $php);
 
     /**
      * Adds a php source file to be dumped in the vendor/composer/ directory.
@@ -99,7 +99,7 @@ interface BuildInterface
      * @param string $phpRows
      *   PHP code within the "return array(*)" statement.
      */
-    function addArraySourceFile($filename, $phpRows);
+    public function addArraySourceFile($filename, $phpRows);
 
     /**
      * @param string $methodCode
