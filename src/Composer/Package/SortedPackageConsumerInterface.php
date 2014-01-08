@@ -3,13 +3,10 @@
 
 namespace Composer\Package;
 
-
+/**
+ * Interface to indicate that packages should be sorted before addPackage() is
+ * called.
+ */
 interface SortedPackageConsumerInterface extends PackageConsumerInterface
 {
-    /**
-     * @param PackageInterface $package
-     * @param string $installPath
-     * @param bool $isMainPackage
-     */
-    function addPackage(PackageInterface $package, $installPath, $isMainPackage);
 } 
