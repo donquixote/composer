@@ -6,8 +6,8 @@ namespace Composer\Autoload;
 
 use Composer\Util\Filesystem;
 
-interface BuildInterface {
-
+interface BuildInterface
+{
     /**
      * Adds a PHP snippet to the AutoloaderInit::getLoader() method.
      *
