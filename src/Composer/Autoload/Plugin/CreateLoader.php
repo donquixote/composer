@@ -11,17 +11,6 @@ use Composer\Package\PackageInterface;
 class CreateLoader implements PluginInterface
 {
     /**
-     * @param PackageInterface $package
-     * @param string $installPath
-     * @param bool $isMainPackage
-     * @internal param $order
-     */
-    public function addPackage(PackageInterface $package, $installPath, $isMainPackage)
-    {
-        // Nothing to do here.
-    }
-
-    /**
      * @param ClassLoader $classLoader
      * @param bool $prependAutoloader
      */
