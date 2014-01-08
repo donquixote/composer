@@ -45,12 +45,10 @@ class TargetDirLoader implements PluginInterface
     /**
      * @param ClassLoader $classLoader
      * @param bool $prependAutoloader
-     *
-     * @throws \Exception
      */
     public function initClassLoader(ClassLoader $classLoader, $prependAutoloader)
     {
-        throw new \Exception('Not implemented.');
+        // Do nothing.
     }
 
     /**
@@ -72,7 +70,7 @@ class TargetDirLoader implements PluginInterface
         }
         $prefixes = implode(', ', $prefixes);
 
-        $baseDirFromTargetDirCode = $filesystem->findShortestPathCode($this->targetDir, $build->getBasePath(), true);
+        $baseDirFromTargetDirCode = $filesystem->findShortestPathCode($build->getTargetDir(), $build->getBasePath(), true);
 
         $targetDirLoader = <<<EOF
 

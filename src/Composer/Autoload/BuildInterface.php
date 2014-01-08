@@ -78,12 +78,22 @@ interface BuildInterface {
     /**
      * @return string
      */
+    public function getTargetDir();
+
+    /**
+     * @return string
+     */
     public function getAppDirBaseCode();
 
     /**
      * @return string
      */
     public function getVendorPathCode();
+
+    /**
+     * @return bool
+     */
+    public function useGlobalIncludePath();
 
     /**
      * @return bool
