@@ -7,11 +7,13 @@ namespace Composer\Autoload\Plugin;
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\PackageInterface;
+use Composer\Package\SortedPackageConsumerInterface;
 
-class Files extends AbstractPlugin
+class Files extends AbstractPlugin implements SortedPackageConsumerInterface
 {
     /**
      * @param PackageInterface $package
+     * @internal param int $order
      *
      * @return array|null
      */
@@ -74,6 +76,8 @@ class Files extends AbstractPlugin
      */
     protected function buildPhpRows($build)
     {
+        ksort($this->map);
+
         $filesCode = '';
         foreach ($this->map as $files) {
             foreach ($files as $file) {

@@ -8,8 +8,9 @@ use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Autoload\ClassMapGenerator;
 use Composer\Package\PackageInterface;
+use Composer\Package\SortedPackageConsumerInterface;
 
-class Classmap extends AbstractPlugin implements ExposeClassmapInterface
+class Classmap extends AbstractPlugin implements ExposeClassmapInterface, SortedPackageConsumerInterface
 {
     /**
      * @var ExposeClassmapInterface[]
@@ -150,6 +151,7 @@ PSR4;
      */
     function buildClassMap(BuildInterface $build = NULL)
     {
+        ksort($this->map);
         $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->map));
         $classMap = array();
         foreach ($iterator as $dir) {

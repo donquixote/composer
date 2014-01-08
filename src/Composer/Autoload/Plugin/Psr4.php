@@ -12,10 +12,10 @@ class Psr4 extends AbstractPlugin implements ExposeClassmapInterface
 {
     /**
      * @param PackageInterface $package
+     * @throws \Exception
+     * @internal param int $order
      *
      * @return array|null
-     *
-     * @throws \Exception
      */
     protected function getPackageAutoloads(PackageInterface $package)
     {

@@ -19,6 +19,7 @@ abstract class AbstractPlugin implements PluginInterface
      * @param PackageInterface $package
      * @param string $installPath
      * @param bool $isMainPackage
+     * @internal param $order
      */
     public function addPackage(PackageInterface $package, $installPath, $isMainPackage)
     {
@@ -51,6 +52,7 @@ abstract class AbstractPlugin implements PluginInterface
 
     /**
      * @param PackageInterface $package
+     * @internal param int $order
      * @return array|null
      */
     protected function getPackageAutoloads(PackageInterface $package)
