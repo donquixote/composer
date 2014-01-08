@@ -6,11 +6,15 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
-use Composer\Autoload\ClassMapGenerator;
-use Composer\Package\PackageInterface;
-use Composer\Package\SortedPackageConsumerInterface;
 
-class Classmap extends AbstractPlugin implements ExposeClassmapInterface, SortedPackageConsumerInterface
+/**
+ * Registers an accumulated classmap to the class loader, based on sources added
+ * with addClassmapSource().
+ *
+ * This plugin does NOT look into ['autoload']['classmap'] in composer.json,
+ * this is the job of the sources. See ClassmapPackageConsumer.
+ */
+class Classmap implements PluginInterface
 {
     /**
      * @var ExposeClassmapInterface[]
@@ -26,43 +30,6 @@ class Classmap extends AbstractPlugin implements ExposeClassmapInterface, Sorted
     }
 
     /**
-     * @param PackageInterface $package
-     *
-     * @return array|null
-     */
-    protected function getPackageAutoloads(PackageInterface $package)
-    {
-        $autoload = $package->getAutoload();
-
-        if (!isset($autoload['classmap']) || !is_array($autoload['classmap'])) {
-            // Skip this package.
-            return NULL;
-        }
-
-        return $autoload['classmap'];
-    }
-
-    /**
-     * @param string $path
-     * @param string $targetDir
-     * @param bool $isMainPackage
-     *
-     * @return string
-     */
-    protected function pathResolveTargetDir($path, $targetDir, $isMainPackage)
-    {
-        if ($isMainPackage) {
-            // remove target-dir from classmap entries of the root package
-            $targetDir = str_replace('\\<dirsep\\>', '[\\\\/]', preg_quote(str_replace(array('/', '\\'), '<dirsep>', $targetDir)));
-            return ltrim(preg_replace('{^'.$targetDir.'}', '', ltrim($path, '\\/')), '\\/');
-        }
-        else {
-            // add target-dir to classmap entries that don't have it
-            return $targetDir . '/' . $path;
-        }
-    }
-
-    /**
      * @param ClassLoader $classLoader
      * @param bool $prependAutoloader
      */
@@ -74,11 +41,16 @@ class Classmap extends AbstractPlugin implements ExposeClassmapInterface, Sorted
     }
 
     /**
-     * @return string
+     * @param BuildInterface $build
      */
-    protected function getFileName()
+    public function generate(BuildInterface $build)
     {
-        return 'autoload_classmap.php';
+        $phpRows = $this->buildPhpRows($build);
+        if (!isset($phpRows)) {
+            return;
+        }
+        $build->addArraySourceFile('autoload_classmap.php', $phpRows);
+        $build->addPhpSnippet($this->getSnippet());
     }
 
     /**
@@ -127,38 +99,5 @@ class Classmap extends AbstractPlugin implements ExposeClassmapInterface, Sorted
 
 
 PSR4;
-    }
-
-    /**
-     * @return string[]
-     *   Paths to scan for class map.
-     */
-    function getClassmapPaths()
-    {
-        $pathsAll = array();
-        foreach ($this->map as $paths) {
-            foreach ($paths as $path) {
-                $pathsAll[] = $path;
-            }
-        }
-        return $pathsAll;
-    }
-
-    /**
-     * @param BuildInterface $build
-     * @return string[]
-     *   Class map.
-     */
-    function buildClassMap(BuildInterface $build = NULL)
-    {
-        ksort($this->map);
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->map));
-        $classMap = array();
-        foreach ($iterator as $dir) {
-            foreach (ClassMapGenerator::createMap($dir) as $class => $path) {
-                $classMap[$class] = $path;
-            }
-        }
-        return $classMap;
     }
 }

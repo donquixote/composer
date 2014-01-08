@@ -12,6 +12,7 @@
 
 namespace Composer\Autoload;
 
+use Composer\Autoload\Plugin\PluginInterface;
 use Composer\Config;
 use Composer\EventDispatcher\EventDispatcher;
 use Composer\Package\PackageConsumerInterface;
@@ -102,14 +103,17 @@ class AutoloadGenerator
      * @param PackageMap $packageMap
      * @param bool $scanPsr0Packages
      *
-     * @return Plugin\PluginInterface[]
+     * @return PluginInterface[]
      */
     protected function createPreparedPlugins(PackageMap $packageMap, $scanPsr0Packages)
     {
-        $plugins = $this->createPlugins($scanPsr0Packages);
-        foreach ($plugins as $plugin) {
+        $plugins = array();
+        foreach ($this->createPlugins($scanPsr0Packages) as $plugin) {
             if ($plugin instanceof PackageConsumerInterface) {
                 $packageMap->processPackageConsumer($plugin);
+            }
+            if ($plugin instanceof PluginInterface) {
+                $plugins[] = $plugin;
             }
         }
         return $plugins;
@@ -118,7 +122,9 @@ class AutoloadGenerator
     /**
      * @param bool $scanPsr0Packages
      *
-     * @return Plugin\PluginInterface[]
+     * @return object[]
+     *   Each element is either an instance of PluginInterface, or
+     *   PackageConsumerInterface, or both.
      */
     protected function createPlugins($scanPsr0Packages)
     {
@@ -127,17 +133,18 @@ class AutoloadGenerator
             new Plugin\IncludePaths,
             $psr0 = new Plugin\Psr0,
             $psr4 = new Plugin\Psr4,
-            $classmap = new Plugin\Classmap($scanPsr0Packages),
+            $classmapPlugin = new Plugin\Classmap,
+            $classmapPackageConsumer = new Plugin\ClassmapPackageConsumer,
             new Plugin\UseGlobalIncludePath,
             new Plugin\TargetDirLoader,
             new Plugin\RegisterLoader,
             new Plugin\Files,
         );
         if ($scanPsr0Packages) {
-            $classmap->addClassmapSource($psr0);
-            $classmap->addClassmapSource($psr4);
+            $classmapPlugin->addClassmapSource($psr0);
+            $classmapPlugin->addClassmapSource($psr4);
         }
-        $classmap->addClassmapSource($classmap);
+        $classmapPlugin->addClassmapSource($classmapPackageConsumer);
 
         return $plugins;
     }
