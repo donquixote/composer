@@ -5,9 +5,8 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
-use Composer\Package\PackageConsumerInterface;
 
-interface PluginInterface extends PackageConsumerInterface
+interface PluginInterface
 {
     /**
      * @param ClassLoader $classLoader

@@ -6,9 +6,10 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
+use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
 
-class TargetDirLoader implements PluginInterface
+class TargetDirLoader implements PluginInterface, PackageConsumerInterface
 {
     /**
      * @var string|null

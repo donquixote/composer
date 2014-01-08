@@ -14,6 +14,7 @@ namespace Composer\Autoload;
 
 use Composer\Config;
 use Composer\EventDispatcher\EventDispatcher;
+use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackagePathFinderInterface;
 use Composer\Package\PackageInterface;
 use Composer\Package\PackageMap;
@@ -56,10 +57,7 @@ class AutoloadGenerator
         $packages = $localRepo->getCanonicalPackages();
         $packageMap = new PackageMap($packagePathFinder, $packages, $mainPackage);
 
-        $plugins = $this->createPlugins($scanPsr0Packages);
-        foreach ($plugins as $plugin) {
-            $packageMap->processPackageConsumer($plugin);
-        }
+        $plugins = $this->createPreparedPlugins($packageMap, $scanPsr0Packages);
 
         $build = new Build($config, $targetDir, $suffix);
 
@@ -92,10 +90,7 @@ class AutoloadGenerator
      */
     function createLoader(PackageMap $packageMap, $prependAutoloader = true)
     {
-        $plugins = $this->createPlugins(false);
-        foreach ($plugins as $plugin) {
-            $packageMap->processPackageConsumer($plugin);
-        }
+        $plugins = $this->createPreparedPlugins($packageMap, false);
         $loader = new ClassLoader();
         foreach ($plugins as $plugin) {
             $plugin->initClassLoader($loader, $prependAutoloader);
@@ -104,11 +99,29 @@ class AutoloadGenerator
     }
 
     /**
+     * @param PackageMap $packageMap
      * @param bool $scanPsr0Packages
      *
      * @return Plugin\PluginInterface[]
      */
-    protected function createPlugins($scanPsr0Packages) {
+    protected function createPreparedPlugins(PackageMap $packageMap, $scanPsr0Packages)
+    {
+        $plugins = $this->createPlugins($scanPsr0Packages);
+        foreach ($plugins as $plugin) {
+            if ($plugin instanceof PackageConsumerInterface) {
+                $packageMap->processPackageConsumer($plugin);
+            }
+        }
+        return $plugins;
+    }
+
+    /**
+     * @param bool $scanPsr0Packages
+     *
+     * @return Plugin\PluginInterface[]
+     */
+    protected function createPlugins($scanPsr0Packages)
+    {
         $plugins = array(
             new Plugin\CreateLoader,
             new Plugin\IncludePaths,

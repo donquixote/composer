@@ -6,9 +6,10 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassMapGenerator;
+use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
 
-abstract class AbstractPlugin implements PluginInterface
+abstract class AbstractPlugin implements PluginInterface, PackageConsumerInterface
 {
     /**
      * @var array
