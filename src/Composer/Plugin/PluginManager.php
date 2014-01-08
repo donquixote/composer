@@ -12,6 +12,7 @@
 
 namespace Composer\Plugin;
 
+use Composer\Autoload\LoaderCreator;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
@@ -186,6 +187,8 @@ class PluginManager
      * instead for BC
      *
      * @param PackageInterface $package
+     *
+     * @throws \UnexpectedValueException
      */
     public function registerPackage(PackageInterface $package)
     {
@@ -207,16 +210,12 @@ class PluginManager
         $autoloadPackages = array($package->getName() => $package);
         $autoloadPackages = $this->collectDependencies($pool, $autoloadPackages, $package);
 
-        $generator = $this->composer->getAutoloadGenerator();
-        $autoloads = array();
-        foreach ($autoloadPackages as $autoloadPackage) {
-            $downloadPath = $this->getInstallPath($autoloadPackage, ($this->globalRepository && $this->globalRepository->hasPackage($autoloadPackage)));
-            $autoloads[] = array($autoloadPackage, $downloadPath);
+        $loaderCreator = new LoaderCreator();
+        foreach ($autoloadPackages as $package) {
+            $downloadPath = $this->getInstallPath($package);
+            $loaderCreator->addPackage($package, $downloadPath, false);
         }
-
-        $map = $generator->parseAutoloads($autoloads, new Package('dummy', '1.0.0.0', '1.0.0'));
-        $classLoader = $generator->createLoader($map);
-        $classLoader->register();
+        $classLoader = $loaderCreator->createLoader(true);
 
         foreach ($classes as $class) {
             if (class_exists($class, false)) {

@@ -24,6 +24,7 @@ use Composer\Script\ScriptEvents;
 /**
  * @author Igor Wiedler <igor@wiedler.ch>
  * @author Jordi Boggiano <j.boggiano@seld.be>
+ * @author Andreas hennings <andreas@dqxtech.net>
  */
 class AutoloadGenerator
 {
@@ -32,12 +33,81 @@ class AutoloadGenerator
      */
     private $eventDispatcher;
 
+    /**
+     * @param EventDispatcher $eventDispatcher
+     */
     public function __construct(EventDispatcher $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @param Config $config
+     * @param InstalledRepositoryInterface $localRepo
+     * @param PackageInterface $mainPackage
+     * @param InstallationManager $installationManager
+     * @param string $targetDir
+     * @param bool $scanPsr0Packages
+     * @param string $suffix
+     */
     public function dump(Config $config, InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage, InstallationManager $installationManager, $targetDir, $scanPsr0Packages = false, $suffix = '')
+    {
+        $this->eventDispatcher->dispatchScript(ScriptEvents::PRE_AUTOLOAD_DUMP);
+
+        $plugins = $this->createPreparedPlugins($localRepo, $mainPackage, $installationManager);
+
+        $build = new Build($config, $targetDir, $suffix);
+
+        foreach ($plugins as $plugin) {
+            $plugin->generate($build);
+        }
+
+        foreach ($build->generateFiles() as $file => $contents) {
+            file_put_contents($file, $contents);
+        }
+    }
+
+    /**
+     * @param InstalledRepositoryInterface $localRepo
+     * @param PackageInterface $mainPackage
+     * @param InstallationManager $installationManager
+     *
+     * @return Plugin\PluginInterface[]
+     */
+    protected function createPreparedPlugins(InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage, InstallationManager $installationManager)
+    {
+        $plugins = $this->createPlugins();
+
+        // Let plugins know about the main package.
+        foreach ($plugins as $plugin) {
+            $plugin->addPackage($mainPackage, '', true);
+        }
+
+        // Let plugins know about the other packages.
+        foreach ($localRepo->getCanonicalPackages() as $package) {
+            if ($package instanceof AliasPackage) {
+                continue;
+            }
+            $this->validatePackage($package);
+            $installPath = $installationManager->getInstallPath($package);
+            foreach ($plugins as $plugin) {
+                $plugin->addPackage($package, $installPath, false);
+            }
+        }
+
+        return $plugins;
+    }
+
+    /**
+     * @param Config $config
+     * @param InstalledRepositoryInterface $localRepo
+     * @param PackageInterface $mainPackage
+     * @param InstallationManager $installationManager
+     * @param string $targetDir
+     * @param bool $scanPsr0Packages
+     * @param string $suffix
+     */
+    public function _dump(Config $config, InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage, InstallationManager $installationManager, $targetDir, $scanPsr0Packages = false, $suffix = '')
     {
         $this->eventDispatcher->dispatchScript(ScriptEvents::PRE_AUTOLOAD_DUMP);
 
@@ -292,13 +362,26 @@ EOF;
         return array('psr-0' => $psr0, 'psr-4' => $psr4, 'classmap' => $classmap, 'files' => $files);
     }
 
+
+
+    /**
+     * Registers an autoloader based on an autoload map returned by parseAutoloads
+     *
+     * @param  PackageInterface[] $autoloads see parseAutoloads return value
+     * @return ClassLoader
+     */
+    public function _createLoaderFromPackages(array $packages)
+    {
+
+    }
+
     /**
      * Registers an autoloader based on an autoload map returned by parseAutoloads
      *
      * @param  array       $autoloads see parseAutoloads return value
      * @return ClassLoader
      */
-    public function createLoader(array $autoloads)
+    public function _createLoader(array $autoloads)
     {
         $loader = new ClassLoader();
 
@@ -653,5 +736,21 @@ FOOTER;
         }
 
         return $sortedPackageMap;
+    }
+
+    /**
+     * @return Plugin\PluginInterface[]
+     */
+    protected function createPlugins() {
+        return array(
+            new Plugin\CreateLoader,
+            new Plugin\IncludePaths,
+            new Plugin\Psr0,
+            new Plugin\Psr4,
+            new Plugin\Classmap,
+            new Plugin\TargetDirLoader,
+            new Plugin\RegisterLoader,
+            new Plugin\Files,
+        );
     }
 }
