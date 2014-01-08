@@ -24,7 +24,7 @@ class Classmap implements PluginInterface
     /**
      * @param ExposeClassmapInterface $source
      */
-    function addClassmapSource(ExposeClassmapInterface $source)
+    public function addClassmapSource(ExposeClassmapInterface $source)
     {
         $this->sources[] = $source;
     }

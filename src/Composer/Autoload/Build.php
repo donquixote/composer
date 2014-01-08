@@ -95,7 +95,7 @@ class Build implements BuildInterface
      * @param string $targetDir
      * @param string $suffix
      */
-    function __construct(Config $config, $targetDir, $suffix)
+    public function __construct(Config $config, $targetDir, $suffix)
     {
         $filesystem = new Filesystem();
         $filesystem->ensureDirectoryExists($config->get('vendor-dir'));
@@ -237,7 +237,7 @@ class Build implements BuildInterface
      *
      * @param string $snippet
      */
-    function addPhpSnippet($snippet)
+    public function addPhpSnippet($snippet)
     {
         $this->snippets[] = $snippet;
     }
@@ -250,7 +250,7 @@ class Build implements BuildInterface
      * @param string $contents
      *   File contents.
      */
-    function addFile($filename, $contents)
+    public function addFile($filename, $contents)
     {
         $this->files[$filename] = $contents;
     }
@@ -265,7 +265,7 @@ class Build implements BuildInterface
      * @param string $php
      *   PHP code to follow after the headers.
      */
-    function addSourceFile($filename, $php)
+    public function addSourceFile($filename, $php)
     {
         $vendorPathCode52 = str_replace('__DIR__', 'dirname(__FILE__)', $this->vendorPathCode);
         $headers = <<<EOF
@@ -290,7 +290,7 @@ EOF;
      * @param string $phpRows
      *   PHP code within the "return array(*)" statement.
      */
-    function addArraySourceFile($filename, $phpRows)
+    public function addArraySourceFile($filename, $phpRows)
     {
         $php = <<<EOF
 

@@ -12,7 +12,7 @@ class LoaderCreator
      * @param bool $prependAutoloader
      * @return ClassLoader
      */
-    function createLoader(PackageMap $packageMap, $prependAutoloader = true)
+    public function createLoader(PackageMap $packageMap, $prependAutoloader = true)
     {
         $plugins = $this->createPlugins();
         foreach ($plugins as $plugin) {

@@ -57,7 +57,7 @@ class ClassmapPackageConsumer extends AbstractPackageConsumer implements ExposeC
      * @return string[]
      *   Class map.
      */
-    function buildClassMap(BuildInterface $build = NULL)
+    public function buildClassMap(BuildInterface $build = NULL)
     {
         ksort($this->map);
         $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->map));

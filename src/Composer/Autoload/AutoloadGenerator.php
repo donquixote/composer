@@ -89,7 +89,7 @@ class AutoloadGenerator
      * @param bool $prependAutoloader
      * @return ClassLoader
      */
-    function createLoader(PackageMap $packageMap, $prependAutoloader = true)
+    public function createLoader(PackageMap $packageMap, $prependAutoloader = true)
     {
         $plugins = $this->createPreparedPlugins($packageMap, false);
         $loader = new ClassLoader();

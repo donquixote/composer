@@ -68,7 +68,7 @@ PSR4;
      * @return string[]
      *   Class map.
      */
-    function buildClassMap(BuildInterface $build = NULL)
+    public function buildClassMap(BuildInterface $build = NULL)
     {
         return $this->buildClassMapBase($build, 'psr-0');
     }
