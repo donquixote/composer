@@ -12,6 +12,7 @@
 
 namespace Composer\EventDispatcher;
 
+use Composer\Autoload\LoaderCreator;
 use Composer\IO\IOInterface;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\OperationInterface;
@@ -235,16 +236,19 @@ class EventDispatcher
             return array();
         }
 
-        if ($this->loader) {
+        if ($this->loader && method_exists($this->loader, 'unregister')) {
             $this->loader->unregister();
         }
 
-        $generator = $this->composer->getAutoloadGenerator();
         $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages();
-        $packageMap = $generator->buildPackageMap($this->composer->getInstallationManager(), $package, $packages);
-        $map = $generator->parseAutoloads($packageMap, $package);
-        $this->loader = $generator->createLoader($map);
-        $this->loader->register();
+        $installationManager = $this->composer->getInstallationManager();
+
+        $loaderCreator = new LoaderCreator();
+        foreach ($packages as $package) {
+            $installPath = $installationManager->getInstallPath($package);
+            $loaderCreator->addPackage($package, $installPath, false);
+        }
+        $this->loader = $loaderCreator->createLoader(true);
 
         return $scripts[$event->getName()];
     }
