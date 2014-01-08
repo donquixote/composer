@@ -5,17 +5,10 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
-use Composer\Package\PackageInterface;
+use Composer\Package\PackageConsumerInterface;
 
-interface PluginInterface
+interface PluginInterface extends PackageConsumerInterface
 {
-    /**
-     * @param PackageInterface $package
-     * @param string $installPath
-     * @param bool $isMainPackage
-     */
-    public function addPackage(PackageInterface $package, $installPath, $isMainPackage);
-
     /**
      * @param ClassLoader $classLoader
      * @param bool $prependAutoloader

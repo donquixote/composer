@@ -24,6 +24,7 @@ class TargetDirLoader implements PluginInterface
      * @param PackageInterface $package
      * @param string $installPath
      * @param bool $isMainPackage
+     * @internal param $order
      */
     public function addPackage(PackageInterface $package, $installPath, $isMainPackage)
     {

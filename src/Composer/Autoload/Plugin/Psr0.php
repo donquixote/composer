@@ -12,6 +12,7 @@ class Psr0 extends AbstractPlugin implements ExposeClassmapInterface
 {
     /**
      * @param PackageInterface $package
+     * @internal param int $order
      *
      * @return array|null
      */

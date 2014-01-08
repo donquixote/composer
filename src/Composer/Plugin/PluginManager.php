@@ -17,6 +17,8 @@ use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Package\Package;
+use Composer\Package\PackageMap;
+use Composer\Package\PackagePathFinderInterface;
 use Composer\Package\Version\VersionParser;
 use Composer\Repository\RepositoryInterface;
 use Composer\Package\AliasPackage;
@@ -30,7 +32,7 @@ use Composer\DependencyResolver\Pool;
  *
  * @author Nils Adermann <naderman@naderman.de>
  */
-class PluginManager
+class PluginManager implements PackagePathFinderInterface
 {
     protected $composer;
     protected $io;
@@ -210,12 +212,9 @@ class PluginManager
         $autoloadPackages = array($package->getName() => $package);
         $autoloadPackages = $this->collectDependencies($pool, $autoloadPackages, $package);
 
-        $loaderCreator = new LoaderCreator();
-        foreach ($autoloadPackages as $package) {
-            $downloadPath = $this->getInstallPath($package);
-            $loaderCreator->addPackage($package, $downloadPath, false);
-        }
-        $classLoader = $loaderCreator->createLoader(true);
+        $generator = $this->composer->getAutoloadGenerator();
+        $packageMap = new PackageMap($this, $autoloadPackages, $package);
+        $classLoader = $generator->createLoader($packageMap);
 
         foreach ($classes as $class) {
             if (class_exists($class, false)) {

@@ -16,6 +16,7 @@ use Composer\Autoload\LoaderCreator;
 use Composer\IO\IOInterface;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\OperationInterface;
+use Composer\Package\PackageMap;
 use Composer\Script;
 use Composer\Script\CommandEvent;
 use Composer\Script\PackageEvent;
@@ -243,12 +244,9 @@ class EventDispatcher
         $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages();
         $installationManager = $this->composer->getInstallationManager();
 
-        $loaderCreator = new LoaderCreator();
-        foreach ($packages as $package) {
-            $installPath = $installationManager->getInstallPath($package);
-            $loaderCreator->addPackage($package, $installPath, false);
-        }
-        $this->loader = $loaderCreator->createLoader(true);
+        $packageMap = new PackageMap($installationManager, $packages);
+        $generator = $this->composer->getAutoloadGenerator();
+        $this->loader = $generator->createLoader($packageMap);
 
         return $scripts[$event->getName()];
     }
