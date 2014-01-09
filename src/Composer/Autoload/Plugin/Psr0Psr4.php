@@ -12,7 +12,7 @@ use Composer\Package\PackageInterface;
 /**
  * Base class for PSR-0 and PSR-4 plugins.
  */
-class Psr0Psr4 extends AbstractPackageConsumer implements PluginInterface, ClassmapProviderInterface
+class Psr0Psr4 extends AbstractAutoloadType implements PluginInterface, ClassmapProviderInterface
 {
     /**
      * @var bool

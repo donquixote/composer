@@ -7,7 +7,7 @@ namespace Composer\Autoload\Plugin;
 use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
 
-abstract class AbstractPackageConsumer implements PackageConsumerInterface
+abstract class AbstractAutoloadType implements PackageConsumerInterface
 {
     /**
      * One of 'psr-0', 'psr-4', 'classmap', 'files'.
