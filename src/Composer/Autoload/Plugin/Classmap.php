@@ -67,7 +67,7 @@ EOT
      * @param BuildInterface $build
      * @return string[]
      */
-    protected function buildCombinedClassMap($build = NULL)
+    protected function buildCombinedClassMap(BuildInterface $build = null)
     {
         $classMap = array();
         foreach ($this->providers as $provider) {

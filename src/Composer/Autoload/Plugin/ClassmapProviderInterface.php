@@ -13,5 +13,5 @@ interface ClassmapProviderInterface {
      * @return string[]
      *   Class map.
      */
-    public function buildClassMap(BuildInterface $build = NULL);
+    public function buildClassMap(BuildInterface $build = null);
 } 
