@@ -11,14 +11,14 @@ use Composer\Package\SortedPackageConsumerInterface;
 class Files extends AbstractPackageConsumer implements SortedPackageConsumerInterface, PluginInterface
 {
     /**
-     * Overrides parent property.
+     * Overrides property from AbstractPackageConsumer.
      *
      * @var string
      */
     protected $type = 'files';
 
     /**
-     * Overrides parent property.
+     * Overrides property from AbstractPackageConsumer.
      *
      * @var bool
      */
