@@ -19,7 +19,7 @@ use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackagePathFinderInterface;
 use Composer\Package\PackageInterface;
 use Composer\Package\PackageMap;
-use Composer\Repository\InstalledRepositoryInterface;
+use Composer\Repository\WritableRepositoryInterface;
 use Composer\Script\ScriptEvents;
 
 /**
@@ -44,14 +44,14 @@ class AutoloadGenerator
 
     /**
      * @param Config $config
-     * @param InstalledRepositoryInterface $localRepo
+     * @param WritableRepositoryInterface $localRepo
      * @param PackageInterface $mainPackage
      * @param PackagePathFinderInterface $packagePathFinder
      * @param string $targetDir
      * @param bool $scanPsr0Packages
      * @param string $suffix
      */
-    public function dump(Config $config, InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage, PackagePathFinderInterface $packagePathFinder, $targetDir, $scanPsr0Packages = false, $suffix = '')
+    public function dump(Config $config, WritableRepositoryInterface $localRepo, PackageInterface $mainPackage, PackagePathFinderInterface $packagePathFinder, $targetDir, $scanPsr0Packages = false, $suffix = '')
     {
         $this->eventDispatcher->dispatchScript(ScriptEvents::PRE_AUTOLOAD_DUMP);
 
