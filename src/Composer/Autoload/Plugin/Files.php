@@ -8,7 +8,7 @@ use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\SortedPackageConsumerInterface;
 
-class Files extends AbstractPackageConsumer implements SortedPackageConsumerInterface, PluginInterface
+class Files extends AbstractAutoloadType implements SortedPackageConsumerInterface, PluginInterface
 {
     /**
      * Overrides property from AbstractPackageConsumer.
