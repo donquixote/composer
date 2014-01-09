@@ -14,7 +14,7 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
     /**
      * @var string|null
      */
-    private $targetDir;
+    private $mainPackageTargetDir;
 
     /**
      * @var array|null
@@ -40,7 +40,7 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
             return;
         }
 
-        $this->targetDir = $targetDir;
+        $this->mainPackageTargetDir = $targetDir;
         $this->mainPackagePsr0 = $mainAutoload['psr-0'];
     }
 
@@ -58,7 +58,7 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
      */
     public function generate(BuildInterface $build)
     {
-        if (!isset($this->targetDir) || !isset($this->mainPackagePsr0)) {
+        if (!isset($this->mainPackageTargetDir) || !isset($this->mainPackagePsr0)) {
             return;
         }
 
@@ -69,7 +69,7 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
         $prefixes = implode(', ', $prefixes);
 
         $filesystem = $build->getFilesystem();
-        $levels = count(explode('/', $filesystem->normalizePath($this->targetDir)));
+        $levels = count(explode('/', $filesystem->normalizePath($this->mainPackageTargetDir)));
         $baseDirFromTargetDirCode = $filesystem->findShortestPathCode($build->getTargetDir(), $build->getBasePath(), true);
 
         $build->addMethod(<<<EOF
