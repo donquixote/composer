@@ -12,7 +12,7 @@ use Composer\Package\PackageInterface;
 /**
  * Base class for PSR-0 and PSR-4 plugins.
  */
-class Psr0Psr4 extends AbstractPackageConsumer implements PluginInterface, ExposeClassmapInterface
+class Psr0Psr4 extends AbstractPackageConsumer implements PluginInterface, ClassmapProviderInterface
 {
     /**
      * @var bool
@@ -120,7 +120,7 @@ EOT
     }
 
     /**
-     * Implements ExposeClassmapInterface::buildClassMap()
+     * Implements ClassmapProviderInterface::buildClassMap()
      *
      * @param BuildInterface $build
      * @return string[]
