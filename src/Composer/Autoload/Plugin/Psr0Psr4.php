@@ -120,6 +120,8 @@ EOT
     }
 
     /**
+     * Implements ExposeClassmapInterface::buildClassMap()
+     *
      * @param BuildInterface $build
      * @return string[]
      *   Class map.

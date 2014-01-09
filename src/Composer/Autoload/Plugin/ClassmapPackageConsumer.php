@@ -15,14 +15,14 @@ use Composer\Package\SortedPackageConsumerInterface;
 class ClassmapPackageConsumer extends AbstractPackageConsumer implements ExposeClassmapInterface, SortedPackageConsumerInterface
 {
     /**
-     * Overrides parent property.
+     * Overrides property from AbstractPackageConsumer.
      *
      * @var string
      */
     protected $type = 'classmap';
 
     /**
-     * Overrides parent property.
+     * Overrides property from AbstractPackageConsumer.
      *
      * @var bool
      */
@@ -49,6 +49,8 @@ class ClassmapPackageConsumer extends AbstractPackageConsumer implements ExposeC
     }
 
     /**
+     * Implements ExposeClassmapInterface::buildClassMap()
+     *
      * @param BuildInterface $build
      * @return string[]
      *   Class map.
