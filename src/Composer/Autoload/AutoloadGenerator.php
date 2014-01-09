@@ -43,6 +43,8 @@ class AutoloadGenerator
     }
 
     /**
+     * Legacy dump() method for backwards compatibility.
+     *
      * @param Config $config
      * @param WritableRepositoryInterface $localRepo
      * @param PackageInterface $mainPackage
@@ -53,10 +55,27 @@ class AutoloadGenerator
      */
     public function dump(Config $config, WritableRepositoryInterface $localRepo, PackageInterface $mainPackage, PackagePathFinderInterface $packagePathFinder, $targetDir, $scanPsr0Packages = false, $suffix = '')
     {
-        $this->eventDispatcher->dispatchScript(ScriptEvents::PRE_AUTOLOAD_DUMP);
-
         $packages = $localRepo->getCanonicalPackages();
         $packageMap = new PackageMap($packagePathFinder, $packages, $mainPackage);
+
+        $this->dumpPackageMap($config, $packageMap, $targetDir, $scanPsr0Packages, $suffix);
+    }
+
+    /**
+     * Simplified version of the dump() method.
+     *
+     * Takes a ready-made PackageMap object instead of three separate parameters
+     * to build the package map.
+     *
+     * @param Config $config
+     * @param PackageMap $packageMap
+     * @param string $targetDir
+     * @param bool $scanPsr0Packages
+     * @param string $suffix
+     */
+    public function dumpPackageMap(Config $config, PackageMap $packageMap, $targetDir, $scanPsr0Packages = false, $suffix = '')
+    {
+        $this->eventDispatcher->dispatchScript(ScriptEvents::PRE_AUTOLOAD_DUMP);
 
         if (!$suffix) {
             $suffix = $config->get('autoloader-suffix') ?: md5(uniqid('', true));
