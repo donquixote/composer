@@ -17,16 +17,16 @@ use Composer\Autoload\ClassLoader;
 class Classmap implements PluginInterface
 {
     /**
-     * @var ExposeClassmapInterface[]
+     * @var ClassmapProviderInterface[]
      */
-    private $sources = array();
+    private $providers = array();
 
     /**
-     * @param ExposeClassmapInterface $source
+     * @param ClassmapProviderInterface $provider
      */
-    public function addClassmapSource(ExposeClassmapInterface $source)
+    public function addClassmapProvider(ClassmapProviderInterface $provider)
     {
-        $this->sources[] = $source;
+        $this->providers[] = $provider;
     }
 
     /**
@@ -70,8 +70,8 @@ EOT
     protected function buildCombinedClassMap($build = NULL)
     {
         $classMap = array();
-        foreach ($this->sources as $source) {
-            $classMap += $source->buildClassMap($build);
+        foreach ($this->providers as $provider) {
+            $classMap += $provider->buildClassMap($build);
         }
         ksort($classMap);
         return $classMap;

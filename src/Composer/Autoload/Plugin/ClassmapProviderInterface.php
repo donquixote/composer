@@ -6,7 +6,7 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 
-interface ExposeClassmapInterface {
+interface ClassmapProviderInterface {
 
     /**
      * @param BuildInterface $build

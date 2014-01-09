@@ -162,10 +162,10 @@ class AutoloadGenerator
             new Plugin\Files,
         );
         if ($scanPsr0Packages) {
-            $classmapPlugin->addClassmapSource($psr0);
-            $classmapPlugin->addClassmapSource($psr4);
+            $classmapPlugin->addClassmapProvider($psr0);
+            $classmapPlugin->addClassmapProvider($psr4);
         }
-        $classmapPlugin->addClassmapSource($classmapPackageConsumer);
+        $classmapPlugin->addClassmapProvider($classmapPackageConsumer);
 
         return $plugins;
     }

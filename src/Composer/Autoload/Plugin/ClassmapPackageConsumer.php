@@ -12,7 +12,7 @@ use Composer\Package\SortedPackageConsumerInterface;
  * Scans the ['autoload']['classmap'] in composer.json, and exposes a classmap
  * via the ->buildClassMap() method.
  */
-class ClassmapPackageConsumer extends AbstractPackageConsumer implements ExposeClassmapInterface, SortedPackageConsumerInterface
+class ClassmapPackageConsumer extends AbstractPackageConsumer implements ClassmapProviderInterface, SortedPackageConsumerInterface
 {
     /**
      * Overrides property from AbstractPackageConsumer.
@@ -49,7 +49,7 @@ class ClassmapPackageConsumer extends AbstractPackageConsumer implements ExposeC
     }
 
     /**
-     * Implements ExposeClassmapInterface::buildClassMap()
+     * Implements ClassmapProviderInterface::buildClassMap()
      *
      * @param BuildInterface $build
      * @return string[]
