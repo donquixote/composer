@@ -68,28 +68,6 @@ interface BuildInterface
     public function addPhpSnippet($snippet);
 
     /**
-     * Adds a file to be dumped in the vendor/composer/ directory.
-     *
-     * @param string $filename
-     *   Name of the file, relative to vendor/composer/.
-     * @param string $contents
-     *   File contents.
-     */
-    public function addFile($filename, $contents);
-
-    /**
-     * Adds a php source file to be dumped in the vendor/composer/ directory.
-     *
-     * This file will have some headers automatically added.
-     *
-     * @param string $filename
-     *   Name of the file, relative to vendor/composer/.
-     * @param string $php
-     *   PHP code to follow after the headers.
-     */
-    public function addSourceFile($filename, $php);
-
-    /**
      * Adds a php source file to be dumped in the vendor/composer/ directory.
      *
      * This file will have some headers automatically added.
