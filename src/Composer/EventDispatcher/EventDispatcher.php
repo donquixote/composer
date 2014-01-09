@@ -12,7 +12,6 @@
 
 namespace Composer\EventDispatcher;
 
-use Composer\Autoload\LoaderCreator;
 use Composer\IO\IOInterface;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\OperationInterface;
