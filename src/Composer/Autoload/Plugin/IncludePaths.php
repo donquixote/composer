@@ -6,9 +6,10 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
+use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
 
-class IncludePaths extends AbstractPlugin
+class IncludePaths implements PluginInterface, PackageConsumerInterface
 {
     /**
      * @var string[]|null
@@ -53,41 +54,27 @@ class IncludePaths extends AbstractPlugin
     }
 
     /**
-     * @return string
-     */
-    protected function getFileName()
-    {
-        return 'include_paths.php';
-    }
-
-    /**
      * @param BuildInterface $build
-     * @return string|null
      */
-    protected function buildPhpRows($build)
+    public function generate(BuildInterface $build)
     {
         if (!isset($this->includePaths)) {
-            return null;
+            return;
         }
 
         $includePathsCode = '';
         foreach ($this->includePaths as $path) {
             $includePathsCode .= "    " . $build->getPathCode($path) . ",\n";
         }
+        $build->addArraySourceFile('include_paths.php', $includePathsCode);
 
-        return $includePathsCode;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getSnippet() {
-        return <<<'PSR4'
+        $build->addPhpSnippet(<<<'EOT'
         $includePaths = require __DIR__ . '/include_paths.php';
         array_push($includePaths, get_include_path());
         set_include_path(join(PATH_SEPARATOR, $includePaths));
 
 
-PSR4;
+EOT
+        );
     }
 }

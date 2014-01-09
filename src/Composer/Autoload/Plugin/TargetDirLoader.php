@@ -62,19 +62,17 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
             return;
         }
 
-        $filesystem = $build->getFilesystem();
-
-        $levels = count(explode('/', $filesystem->normalizePath($this->targetDir)));
-
         $prefixes = array();
         foreach (array_keys($this->mainPackagePsr0) as $prefix) {
             $prefixes[] = var_export($prefix, true);
         }
         $prefixes = implode(', ', $prefixes);
 
+        $filesystem = $build->getFilesystem();
+        $levels = count(explode('/', $filesystem->normalizePath($this->targetDir)));
         $baseDirFromTargetDirCode = $filesystem->findShortestPathCode($build->getTargetDir(), $build->getBasePath(), true);
 
-        $targetDirLoader = <<<EOF
+        $build->addMethod(<<<EOF
 
     public static function autoload(\$class)
     {
@@ -94,16 +92,16 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
         }
     }
 
-EOF;
-        $build->addMethod($targetDirLoader);
+EOF
+        );
 
         $suffix = $build->getSuffix();
 
-        $snippet = <<<EOF
+        $build->addPhpSnippet(<<<EOF
         spl_autoload_register(array('ComposerAutoloaderInit$suffix', 'autoload'), true, true);
 
 
-EOF;
-        $build->addPhpSnippet($snippet);
+EOF
+        );
     }
 }

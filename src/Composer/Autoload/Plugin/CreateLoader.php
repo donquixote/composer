@@ -6,7 +6,6 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
-use Composer\Package\PackageInterface;
 
 class CreateLoader implements PluginInterface
 {
@@ -29,7 +28,7 @@ class CreateLoader implements PluginInterface
         $suffix = $build->getSuffix();
         $prependAutoloader = $build->prependAutoloader() ? 'true' : 'false';
 
-        $snippet = <<<EOT
+        $build->addPhpSnippet(<<<EOT
         if (null !== self::\$loader) {
             return self::\$loader;
         }
@@ -42,7 +41,7 @@ class CreateLoader implements PluginInterface
         \$baseDir = $appBaseDirCode;
 
 
-EOT;
-        $build->addPhpSnippet($snippet);
+EOT
+        );
     }
 }

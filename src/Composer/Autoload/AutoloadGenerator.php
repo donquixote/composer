@@ -152,8 +152,8 @@ class AutoloadGenerator
         $plugins = array(
             new Plugin\CreateLoader,
             new Plugin\IncludePaths,
-            $psr0 = new Plugin\Psr0,
-            $psr4 = new Plugin\Psr4,
+            $psr0 = new Plugin\Psr0Psr4('psr-0'),
+            $psr4 = new Plugin\Psr0Psr4('psr-4'),
             $classmapPlugin = new Plugin\Classmap,
             $classmapPackageConsumer = new Plugin\ClassmapPackageConsumer,
             new Plugin\UseGlobalIncludePath,
