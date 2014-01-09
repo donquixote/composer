@@ -12,7 +12,6 @@
 
 namespace Composer\Plugin;
 
-use Composer\Autoload\LoaderCreator;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
