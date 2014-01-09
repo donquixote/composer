@@ -38,7 +38,12 @@ class EventDispatcher
 {
     protected $composer;
     protected $io;
+
+    /**
+     * @var \Composer\Autoload\ClassLoader
+     */
     protected $loader;
+
     protected $process;
 
     /**
@@ -236,7 +241,7 @@ class EventDispatcher
             return array();
         }
 
-        if ($this->loader && method_exists($this->loader, 'unregister')) {
+        if ($this->loader) {
             $this->loader->unregister();
         }
 
