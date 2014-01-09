@@ -80,6 +80,8 @@ interface BuildInterface
     public function addArraySourceFile($filename, $phpRows);
 
     /**
+     * Adds an additional method to the AutoloaderInit class.
+     *
      * @param string $methodCode
      */
     public function addMethod($methodCode);
