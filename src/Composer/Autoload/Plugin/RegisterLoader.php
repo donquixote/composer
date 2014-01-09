@@ -6,7 +6,6 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
-use Composer\Package\PackageInterface;
 
 class RegisterLoader implements PluginInterface
 {
@@ -26,11 +25,11 @@ class RegisterLoader implements PluginInterface
     {
         $prependAutoloader = $build->prependAutoloader() ? 'true' : 'false';
 
-        $snippet = <<<EOF
+        $build->addPhpSnippet(<<<EOF
         \$loader->register($prependAutoloader);
 
 
-EOF;
-        $build->addPhpSnippet($snippet);
+EOF
+        );
     }
 }

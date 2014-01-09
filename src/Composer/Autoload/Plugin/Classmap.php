@@ -45,39 +45,29 @@ class Classmap implements PluginInterface
      */
     public function generate(BuildInterface $build)
     {
-        $phpRows = $this->buildPhpRows($build);
-        if (!isset($phpRows)) {
-            return;
-        }
-        $build->addArraySourceFile('autoload_classmap.php', $phpRows);
-        $build->addPhpSnippet($this->getSnippet());
-    }
-
-    /**
-     * @param BuildInterface $build
-     * @return string
-     */
-    protected function buildPhpRows($build)
-    {
         $phpRows = '';
         foreach ($this->buildCombinedClassMap($build) as $class => $file) {
             $code = $build->getPathCode($file);
             $phpRows .= '    ' . var_export($class, true) . ' => ' . $code . ",\n";
         }
+        $build->addArraySourceFile('autoload_classmap.php', $phpRows);
 
-        if (empty($phpRows)) {
-            // Suppress the class map.
-            # return null;
+        $build->addPhpSnippet(<<<'EOT'
+        $classMap = require __DIR__ . '/autoload_classmap.php';
+        if ($classMap) {
+            $loader->addClassMap($classMap);
         }
 
-        return $phpRows;
+
+EOT
+        );
     }
 
     /**
      * @param BuildInterface $build
      * @return string[]
      */
-    public function buildCombinedClassMap($build = NULL)
+    protected function buildCombinedClassMap($build = NULL)
     {
         $classMap = array();
         foreach ($this->sources as $source) {
@@ -85,19 +75,5 @@ class Classmap implements PluginInterface
         }
         ksort($classMap);
         return $classMap;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getSnippet() {
-        return <<<'PSR4'
-        $classMap = require __DIR__ . '/autoload_classmap.php';
-        if ($classMap) {
-            $loader->addClassMap($classMap);
-        }
-
-
-PSR4;
     }
 }

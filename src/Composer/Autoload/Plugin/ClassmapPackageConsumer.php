@@ -6,7 +6,6 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassMapGenerator;
-use Composer\Package\PackageInterface;
 use Composer\Package\SortedPackageConsumerInterface;
 
 /**
@@ -16,21 +15,18 @@ use Composer\Package\SortedPackageConsumerInterface;
 class ClassmapPackageConsumer extends AbstractPackageConsumer implements ExposeClassmapInterface, SortedPackageConsumerInterface
 {
     /**
-     * @param PackageInterface $package
+     * Overrides parent property.
      *
-     * @return array|null
+     * @var string
      */
-    protected function getPackageAutoloads(PackageInterface $package)
-    {
-        $autoload = $package->getAutoload();
+    protected $type = 'classmap';
 
-        if (!isset($autoload['classmap']) || !is_array($autoload['classmap'])) {
-            // Skip this package.
-            return NULL;
-        }
-
-        return $autoload['classmap'];
-    }
+    /**
+     * Overrides parent property.
+     *
+     * @var bool
+     */
+    protected $mustResolveTargetDir = true;
 
     /**
      * @param string $path

@@ -6,28 +6,23 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
-use Composer\Package\PackageInterface;
 use Composer\Package\SortedPackageConsumerInterface;
 
-class Files extends AbstractPlugin implements SortedPackageConsumerInterface
+class Files extends AbstractPackageConsumer implements SortedPackageConsumerInterface, PluginInterface
 {
     /**
-     * @param PackageInterface $package
-     * @internal param int $order
+     * Overrides parent property.
      *
-     * @return array|null
+     * @var string
      */
-    protected function getPackageAutoloads(PackageInterface $package)
-    {
-        $autoload = $package->getAutoload();
+    protected $type = 'files';
 
-        if (!isset($autoload['files']) || !is_array($autoload['files'])) {
-            // Skip this package.
-            return null;
-        }
-
-        return $autoload['files'];
-    }
+    /**
+     * Overrides parent property.
+     *
+     * @var bool
+     */
+    protected $mustResolveTargetDir = true;
 
     /**
      * @param string $path
@@ -63,18 +58,9 @@ class Files extends AbstractPlugin implements SortedPackageConsumerInterface
     }
 
     /**
-     * @return string
-     */
-    protected function getFileName()
-    {
-        return 'autoload_files.php';
-    }
-
-    /**
      * @param BuildInterface $build
-     * @return string
      */
-    protected function buildPhpRows($build)
+    public function generate(BuildInterface $build)
     {
         ksort($this->map);
 
@@ -86,23 +72,19 @@ class Files extends AbstractPlugin implements SortedPackageConsumerInterface
         }
 
         if (!$filesCode) {
-            return null;
+            return;
         }
 
-        return $filesCode;
-    }
+        $build->addArraySourceFile('autoload_files.php', $filesCode);
 
-    /**
-     * @return string
-     */
-    protected function getSnippet() {
-        return <<<'PSR4'
+        $build->addPhpSnippet(<<<'EOT'
         $includeFiles = require __DIR__ . '/autoload_files.php';
         foreach ($includeFiles as $file) {
             require $file;
         }
 
 
-PSR4;
+EOT
+        );
     }
 }

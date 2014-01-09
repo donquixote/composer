@@ -27,10 +27,10 @@ class UseGlobalIncludePath implements PluginInterface
             return;
         }
 
-        $snippet = <<<'EOT'
+        $build->addPhpSnippet(<<<'EOT'
         $loader->setUseIncludePath(true);
 
-EOT;
-        $build->addPhpSnippet($snippet);
+EOT
+        );
     }
 }
