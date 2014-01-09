@@ -58,10 +58,12 @@ class AutoloadGenerator
         $packages = $localRepo->getCanonicalPackages();
         $packageMap = new PackageMap($packagePathFinder, $packages, $mainPackage);
 
-        $plugins = $this->createPreparedPlugins($packageMap, $scanPsr0Packages);
-
+        if (!$suffix) {
+            $suffix = $config->get('autoloader-suffix') ?: md5(uniqid('', true));
+        }
         $build = new Build($config, $targetDir, $suffix);
 
+        $plugins = $this->createPreparedPlugins($packageMap, $scanPsr0Packages);
         foreach ($plugins as $plugin) {
             $plugin->generate($build);
         }
