@@ -15,6 +15,9 @@ namespace Composer\Autoload;
 
 use Composer\Util\Filesystem;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 interface BuildInterface
 {
     /**

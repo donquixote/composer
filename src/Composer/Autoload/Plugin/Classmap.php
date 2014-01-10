@@ -24,6 +24,8 @@ use Composer\Autoload\ClassLoader;
  *
  * This plugin does NOT look into ['autoload']['classmap'] in composer.json,
  * this is the job of the sources. See ClassmapPackageConsumer.
+ *
+ * @author Andreas hennings <andreas@dqxtech.net>
  */
 class Classmap implements PluginInterface
 {

@@ -16,6 +16,9 @@ namespace Composer\Autoload;
 use Composer\Config;
 use Composer\Util\Filesystem;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 class BuildData implements BuildDataInterface
 {
     /**

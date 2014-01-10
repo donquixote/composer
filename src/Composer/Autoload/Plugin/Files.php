@@ -19,6 +19,9 @@ use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\SortedPackageConsumerInterface;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 class Files extends AbstractAutoloadType implements SortedPackageConsumerInterface, PluginInterface
 {
     /**

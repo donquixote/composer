@@ -15,6 +15,9 @@ namespace Composer\Autoload;
 
 use Composer\Config;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 class Build implements BuildInterface
 {
     /**

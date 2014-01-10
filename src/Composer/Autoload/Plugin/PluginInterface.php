@@ -18,6 +18,9 @@ use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 interface PluginInterface
 {
     /**

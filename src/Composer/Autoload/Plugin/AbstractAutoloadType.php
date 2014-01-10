@@ -16,6 +16,9 @@ namespace Composer\Autoload\Plugin;
 use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 abstract class AbstractAutoloadType implements PackageConsumerInterface
 {
     /**
