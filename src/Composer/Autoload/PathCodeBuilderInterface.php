@@ -10,17 +10,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Composer\Autoload\Plugin;
+namespace Composer\Autoload;
 
 
-use Composer\Autoload\BuildDataInterface;
-
-interface ClassmapProviderInterface {
-
+interface PathCodeBuilderInterface
+{
     /**
+     * @param string $path
      * @param BuildDataInterface $buildData
-     * @return string[]
-     *   Class map.
+     *
+     * @return string
      */
-    public function buildClassMap(BuildDataInterface $buildData = null);
-} 
+    public function getPathCode($path, BuildDataInterface $buildData);
+}

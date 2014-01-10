@@ -80,21 +80,23 @@ class AutoloadGenerator
         if (!$suffix) {
             $suffix = $config->get('autoloader-suffix') ?: md5(uniqid('', true));
         }
-        $build = new Build($config, $targetDir, $suffix);
+        $buildData = new BuildData($config, $targetDir, $suffix);
+        $build = new Build();
+        $buildUtil = new PathCodeBuilder();
 
         $plugins = $this->createPreparedPlugins($packageMap, $scanPsr0Packages);
         foreach ($plugins as $plugin) {
-            $plugin->generate($build);
+            $plugin->generate($build, $buildData, $buildUtil);
         }
 
-        foreach ($files = $build->generateFiles() as $file => $contents) {
+        foreach ($files = $build->generateFiles($buildData) as $file => $contents) {
             file_put_contents($file, $contents);
         }
 
         // Use stream_copy_to_stream instead of copy,
         // to work around https://bugs.php.net/bug.php?id=64634
         $sourceLoader = fopen(__DIR__ . '/ClassLoader.php', 'r');
-        $targetLoader = fopen($build->getTargetDir() . '/ClassLoader.php', 'w+');
+        $targetLoader = fopen($buildData->getTargetDir() . '/ClassLoader.php', 'w+');
         stream_copy_to_stream($sourceLoader, $targetLoader);
         fclose($sourceLoader);
         fclose($targetLoader);

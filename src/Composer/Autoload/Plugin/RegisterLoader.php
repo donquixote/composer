@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 
 class RegisterLoader implements PluginInterface
@@ -29,10 +31,12 @@ class RegisterLoader implements PluginInterface
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
-        $prependAutoloader = $build->prependAutoloader() ? 'true' : 'false';
+        $prependAutoloader = $buildData->prependAutoloader() ? 'true' : 'false';
 
         $build->addPhpSnippet(<<<EOF
         \$loader->register($prependAutoloader);

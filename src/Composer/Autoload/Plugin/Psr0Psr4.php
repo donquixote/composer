@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Autoload\ClassMapGenerator;
 use Composer\Package\PackageInterface;
@@ -98,8 +100,10 @@ class Psr0Psr4 extends AbstractAutoloadType implements PluginInterface, Classmap
 
     /**
      * @param BuildInterface $build
+     * @param \Composer\Autoload\BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
         krsort($this->map);
 
@@ -108,7 +112,7 @@ class Psr0Psr4 extends AbstractAutoloadType implements PluginInterface, Classmap
         foreach ($this->map as $namespace => $paths) {
             $exportedPaths = array();
             foreach ($paths as $path) {
-                $exportedPaths[] = $build->getPathCode($path);
+                $exportedPaths[] = $buildUtil->getPathCode($path, $buildData);
             }
             $exportedPrefix = var_export($namespace, true);
             $phpRows .= "    $exportedPrefix => ";
@@ -131,20 +135,20 @@ EOT
     /**
      * Implements ClassmapProviderInterface::buildClassMap()
      *
-     * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
      * @return string[]
      *   Class map.
      */
-    public function buildClassMap(BuildInterface $build = NULL)
+    public function buildClassMap(BuildDataInterface $buildData = NULL)
     {
-        $filesystem = $build->getFilesystem();
+        $filesystem = $buildData->getFilesystem();
         $classMap = array();
         foreach ($this->map as $namespace => $paths) {
             foreach ($paths as $dir) {
                 if (!$filesystem->isAbsolutePath($dir)) {
-                    $dir = $build->getBasePath() . '/' . $dir;
+                    $dir = $buildData->getBasePath() . '/' . $dir;
                 }
-                $dir = $build->getFilesystem()->normalizePath($dir);
+                $dir = $buildData->getFilesystem()->normalizePath($dir);
                 if (!is_dir($dir)) {
                     continue;
                 }

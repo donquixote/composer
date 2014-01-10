@@ -14,6 +14,8 @@ namespace Composer\Autoload\Plugin;
 
 
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\BuildDataInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 
 interface PluginInterface
@@ -26,6 +28,9 @@ interface PluginInterface
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
+     * @return
      */
-    public function generate(BuildInterface $build);
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil);
 } 

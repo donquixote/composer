@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 
 /**
@@ -51,12 +53,14 @@ class Classmap implements PluginInterface
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
         $phpRows = '';
-        foreach ($this->buildCombinedClassMap($build) as $class => $file) {
-            $code = $build->getPathCode($file);
+        foreach ($this->buildCombinedClassMap($buildData) as $class => $file) {
+            $code = $buildUtil->getPathCode($file, $buildData);
             $phpRows .= '    ' . var_export($class, true) . ' => ' . $code . ",\n";
         }
         $build->addArraySourceFile('autoload_classmap.php', $phpRows);
@@ -73,14 +77,14 @@ EOT
     }
 
     /**
-     * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
      * @return string[]
      */
-    protected function buildCombinedClassMap(BuildInterface $build = null)
+    protected function buildCombinedClassMap(BuildDataInterface $buildData = null)
     {
         $classMap = array();
         foreach ($this->providers as $provider) {
-            $classMap += $provider->buildClassMap($build);
+            $classMap += $provider->buildClassMap($buildData);
         }
         ksort($classMap);
         return $classMap;

@@ -13,7 +13,7 @@
 namespace Composer\Autoload\Plugin;
 
 
-use Composer\Autoload\BuildInterface;
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\ClassMapGenerator;
 use Composer\Package\SortedPackageConsumerInterface;
 
@@ -60,11 +60,11 @@ class ClassmapPackageConsumer extends AbstractAutoloadType implements ClassmapPr
     /**
      * Implements ClassmapProviderInterface::buildClassMap()
      *
-     * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
      * @return string[]
      *   Class map.
      */
-    public function buildClassMap(BuildInterface $build = NULL)
+    public function buildClassMap(BuildDataInterface $buildData = null)
     {
         ksort($this->map);
         $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->map));

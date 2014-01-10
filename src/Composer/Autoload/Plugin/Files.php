@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\SortedPackageConsumerInterface;
 
@@ -68,15 +70,17 @@ class Files extends AbstractAutoloadType implements SortedPackageConsumerInterfa
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
         ksort($this->map);
 
         $filesCode = '';
         foreach ($this->map as $files) {
             foreach ($files as $file) {
-                $filesCode .= '    ' . $build->getPathCode($file) . ",\n";
+                $filesCode .= '    ' . $buildUtil->getPathCode($file, $buildData) . ",\n";
             }
         }
 
