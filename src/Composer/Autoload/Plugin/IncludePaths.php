@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
@@ -64,8 +66,10 @@ class IncludePaths implements PluginInterface, PackageConsumerInterface
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
         if (!isset($this->includePaths)) {
             return;
@@ -73,7 +77,7 @@ class IncludePaths implements PluginInterface, PackageConsumerInterface
 
         $includePathsCode = '';
         foreach ($this->includePaths as $path) {
-            $includePathsCode .= "    " . $build->getPathCode($path) . ",\n";
+            $includePathsCode .= "    " . $buildUtil->getPathCode($path, $buildData) . ",\n";
         }
         $build->addArraySourceFile('include_paths.php', $includePathsCode);
 

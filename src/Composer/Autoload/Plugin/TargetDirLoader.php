@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
@@ -64,8 +66,10 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
         if (!isset($this->mainPackageTargetDir) || !isset($this->mainPackagePsr0)) {
             return;
@@ -77,9 +81,9 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
         }
         $prefixes = implode(', ', $prefixes);
 
-        $filesystem = $build->getFilesystem();
+        $filesystem = $buildData->getFilesystem();
         $levels = count(explode('/', $filesystem->normalizePath($this->mainPackageTargetDir)));
-        $baseDirFromTargetDirCode = $filesystem->findShortestPathCode($build->getTargetDir(), $build->getBasePath(), true);
+        $baseDirFromTargetDirCode = $filesystem->findShortestPathCode($buildData->getTargetDir(), $buildData->getBasePath(), true);
 
         $build->addMethod(<<<EOF
 
@@ -104,7 +108,7 @@ class TargetDirLoader implements PluginInterface, PackageConsumerInterface
 EOF
         );
 
-        $suffix = $build->getSuffix();
+        $suffix = $buildData->getSuffix();
 
         $build->addPhpSnippet(<<<EOF
         spl_autoload_register(array('ComposerAutoloaderInit$suffix', 'autoload'), true, true);

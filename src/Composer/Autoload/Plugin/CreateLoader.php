@@ -13,7 +13,9 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildDataInterface;
 use Composer\Autoload\BuildInterface;
+use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 
 class CreateLoader implements PluginInterface
@@ -29,13 +31,15 @@ class CreateLoader implements PluginInterface
 
     /**
      * @param BuildInterface $build
+     * @param BuildDataInterface $buildData
+     * @param PathCodeBuilderInterface $buildUtil
      */
-    public function generate(BuildInterface $build)
+    public function generate(BuildInterface $build, BuildDataInterface $buildData, PathCodeBuilderInterface $buildUtil)
     {
-        $vendorPathCode = $build->getVendorPathCode();
-        $appBaseDirCode = $build->getAppDirBaseCode();
-        $suffix = $build->getSuffix();
-        $prependAutoloader = $build->prependAutoloader() ? 'true' : 'false';
+        $vendorPathCode = $buildData->getVendorPathCode();
+        $appBaseDirCode = $buildData->getAppDirBaseCode();
+        $suffix = $buildData->getSuffix();
+        $prependAutoloader = $buildData->prependAutoloader() ? 'true' : 'false';
 
         $build->addPhpSnippet(<<<EOT
         if (null !== self::\$loader) {
