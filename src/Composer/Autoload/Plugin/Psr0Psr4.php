@@ -18,6 +18,7 @@ use Composer\Autoload\BuildInterface;
 use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Autoload\ClassMapGenerator;
+use Composer\Package\Loader\InvalidPackageException;
 use Composer\Package\PackageInterface;
 
 /**
@@ -70,10 +71,27 @@ class Psr0Psr4 extends AbstractAutoloadType implements PluginInterface, Classmap
      */
     public function addPackage(PackageInterface $package, $installPath, $isMainPackage)
     {
-        if ($this->isPsr4 && null !== $package->getTargetDir()) {
+        if ($this->isPsr4) {
+            // PSR-4 needs some extra validation.
             $autoload = $package->getAutoload();
-            if (isset($autoload['psr-4']) && is_array($autoload['psr-4'])) {
-                throw new \Exception("The ['target-dir'] setting is incompatible with the ['psr-4'] setting.");
+            if (!isset($autoload['psr-4'])) {
+                // Skip this package, as it has no PSR-4 directories.
+                return;
+            }
+            if (!is_array($autoload['psr-4'])) {
+                // So far we silently ignore this case, and simply skip the package.
+                return;
+            }
+            if (null !== $package->getTargetDir()) {
+                $name = $package->getName();
+                $package->getTargetDir();
+                throw new \InvalidArgumentException("PSR-4 autoloading is incompatible with the target-dir property, remove the target-dir in package '$name'.");
+            }
+            foreach ($autoload['psr-4'] as $namespace => $dirs) {
+                if ($namespace !== '' && '\\' !== substr($namespace, -1)) {
+                    $name = $package->getName();
+                    throw new \InvalidArgumentException("The PSR-4 namespace '$namespace' in package '$name' does not end with a namespace separator. Use '$namespace\\' instead.");
+                }
             }
         }
 
