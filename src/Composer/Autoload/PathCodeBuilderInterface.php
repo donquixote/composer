@@ -12,7 +12,9 @@
 
 namespace Composer\Autoload;
 
-
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 interface PathCodeBuilderInterface
 {
     /**

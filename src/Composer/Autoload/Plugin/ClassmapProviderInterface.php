@@ -15,6 +15,9 @@ namespace Composer\Autoload\Plugin;
 
 use Composer\Autoload\BuildDataInterface;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 interface ClassmapProviderInterface {
 
     /**

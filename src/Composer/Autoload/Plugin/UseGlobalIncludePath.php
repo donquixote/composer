@@ -18,6 +18,9 @@ use Composer\Autoload\BuildInterface;
 use Composer\Autoload\PathCodeBuilderInterface;
 use Composer\Autoload\ClassLoader;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 class UseGlobalIncludePath implements PluginInterface
 {
     /**

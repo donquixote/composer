@@ -20,6 +20,9 @@ use Composer\Autoload\ClassLoader;
 use Composer\Package\PackageConsumerInterface;
 use Composer\Package\PackageInterface;
 
+/**
+ * @author Andreas hennings <andreas@dqxtech.net>
+ */
 class IncludePaths implements PluginInterface, PackageConsumerInterface
 {
     /**
