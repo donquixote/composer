@@ -60,6 +60,11 @@ class Build implements BuildInterface
     /**
      * @var bool
      */
+    private $useGlobalIncludePath;
+
+    /**
+     * @var bool
+     */
     private $prependAutoloader;
 
     //                                                          Collected values
@@ -105,6 +110,7 @@ class Build implements BuildInterface
         $appBaseDirCode = $filesystem->findShortestPathCode($vendorPath, $basePath, true);
         $appBaseDirCode = str_replace('__DIR__', '$vendorDir', $appBaseDirCode);
 
+        $useGlobalIncludePath = (bool) $config->get('use-include-path');
         $prependAutoloader = (false !== $config->get('prepend-autoloader'));
 
         $this->filesystem = $filesystem;
@@ -116,6 +122,7 @@ class Build implements BuildInterface
         $this->vendorPathCode52 = $vendorPathCode52;
         $this->vendorPathToTargetDirCode = $vendorPathToTargetDirCode;
         $this->appBaseDirCode = $appBaseDirCode;
+        $this->useGlobalIncludePath = $useGlobalIncludePath;
         $this->prependAutoloader = $prependAutoloader;
     }
 
@@ -260,6 +267,14 @@ EOF;
     /**
      * @return string
      */
+    public function getTargetDir()
+    {
+        return $this->targetDir;
+    }
+
+    /**
+     * @return string
+     */
     public function getAppDirBaseCode() {
         return $this->appBaseDirCode;
     }
@@ -269,6 +284,14 @@ EOF;
      */
     public function getVendorPathCode() {
         return $this->vendorPathCode;
+    }
+
+    /**
+     * @return bool
+     */
+    public function useGlobalIncludePath()
+    {
+        return $this->useGlobalIncludePath;
     }
 
     /**
@@ -310,6 +333,10 @@ EOF;
         $snippetsCode = implode('', $this->snippets);
         $methodsCode = implode('', $this->methods);
 
+        $snippetsCode .= <<<EOT
+        return \$loader;
+EOT;
+
         return <<<EOT
 <?php
 
@@ -329,11 +356,9 @@ class ComposerAutoloaderInit$suffix
     public static function getLoader()
     {
 $snippetsCode
-        return \$loader;
     }
+$methodsCode}
 
-$methodsCode
-}
 EOT;
     }
 

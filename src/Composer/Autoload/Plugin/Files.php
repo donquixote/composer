@@ -28,6 +28,26 @@ class Files extends AbstractPlugin
     }
 
     /**
+     * @param string $path
+     * @param string $targetDir
+     * @param bool $isMainPackage
+     *
+     * @return string
+     */
+    protected function pathResolveTargetDir($path, $targetDir, $isMainPackage)
+    {
+        if ($isMainPackage) {
+            // remove target-dir from file paths of the root package
+            $targetDir = str_replace('\\<dirsep\\>', '[\\\\/]', preg_quote(str_replace(array('/', '\\'), '<dirsep>', $targetDir)));
+            return ltrim(preg_replace('{^'.$targetDir.'}', '', ltrim($path, '\\/')), '\\/');
+        }
+        else {
+            // add target-dir from file paths that don't have it
+            return $targetDir . '/' . $path;
+        }
+    }
+
+    /**
      * @param ClassLoader $classLoader
      * @param bool $prependAutoloader
      */
@@ -62,7 +82,7 @@ class Files extends AbstractPlugin
         }
 
         if (!$filesCode) {
-            return FALSE;
+            return null;
         }
 
         return $filesCode;

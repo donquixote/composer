@@ -13,7 +13,6 @@ interface PluginInterface
      * @param PackageInterface $package
      * @param string $installPath
      * @param bool $isMainPackage
-     * @return
      */
     public function addPackage(PackageInterface $package, $installPath, $isMainPackage);
 

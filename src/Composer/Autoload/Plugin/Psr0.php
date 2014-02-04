@@ -4,10 +4,11 @@
 namespace Composer\Autoload\Plugin;
 
 
+use Composer\Autoload\BuildInterface;
 use Composer\Autoload\ClassLoader;
 use Composer\Package\PackageInterface;
 
-class Psr0 extends AbstractPlugin
+class Psr0 extends AbstractPlugin implements ExposeClassmapInterface
 {
     /**
      * @param PackageInterface $package
@@ -52,12 +53,22 @@ class Psr0 extends AbstractPlugin
      */
     protected function getSnippet() {
         return <<<'PSR4'
-        $map = require __DIR__ . '/autoload_psr0.php';
+        $map = require __DIR__ . '/autoload_namespaces.php';
         foreach ($map as $namespace => $path) {
             $loader->set($namespace, $path);
         }
 
 
 PSR4;
+    }
+
+    /**
+     * @param BuildInterface $build
+     * @return string[]
+     *   Class map.
+     */
+    function buildClassMap(BuildInterface $build = NULL)
+    {
+        return $this->buildClassMapBase($build, 'psr-0');
     }
 }

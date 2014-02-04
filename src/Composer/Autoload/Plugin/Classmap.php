@@ -9,8 +9,21 @@ use Composer\Autoload\ClassLoader;
 use Composer\Autoload\ClassMapGenerator;
 use Composer\Package\PackageInterface;
 
-class Classmap extends AbstractPlugin
+class Classmap extends AbstractPlugin implements ExposeClassmapInterface
 {
+    /**
+     * @var ExposeClassmapInterface[]
+     */
+    private $sources = array();
+
+    /**
+     * @param ExposeClassmapInterface $source
+     */
+    function addClassmapSource(ExposeClassmapInterface $source)
+    {
+        $this->sources[] = $source;
+    }
+
     /**
      * @param PackageInterface $package
      *
@@ -22,10 +35,30 @@ class Classmap extends AbstractPlugin
 
         if (!isset($autoload['classmap']) || !is_array($autoload['classmap'])) {
             // Skip this package.
-            return null;
+            return NULL;
         }
 
         return $autoload['classmap'];
+    }
+
+    /**
+     * @param string $path
+     * @param string $targetDir
+     * @param bool $isMainPackage
+     *
+     * @return string
+     */
+    protected function pathResolveTargetDir($path, $targetDir, $isMainPackage)
+    {
+        if ($isMainPackage) {
+            // remove target-dir from classmap entries of the root package
+            $targetDir = str_replace('\\<dirsep\\>', '[\\\\/]', preg_quote(str_replace(array('/', '\\'), '<dirsep>', $targetDir)));
+            return ltrim(preg_replace('{^'.$targetDir.'}', '', ltrim($path, '\\/')), '\\/');
+        }
+        else {
+            // add target-dir to classmap entries that don't have it
+            return $targetDir . '/' . $path;
+        }
     }
 
     /**
@@ -35,7 +68,7 @@ class Classmap extends AbstractPlugin
     public function initClassLoader(ClassLoader $classLoader, $prependAutoloader)
     {
         // Attention, this is expensive!
-        $classMap = $this->buildClassMap();
+        $classMap = $this->buildCombinedClassMap();
         $classLoader->addClassMap($classMap);
     }
 
@@ -54,32 +87,28 @@ class Classmap extends AbstractPlugin
     protected function buildPhpRows($build)
     {
         $phpRows = '';
-        foreach ($this->buildClassMap() as $class => $file) {
+        foreach ($this->buildCombinedClassMap($build) as $class => $file) {
             $code = $build->getPathCode($file);
             $phpRows .= '    ' . var_export($class, true) . ' => ' . $code . ",\n";
         }
 
         if (empty($phpRows)) {
             // Suppress the class map.
-            return null;
+            # return null;
         }
 
         return $phpRows;
     }
 
     /**
+     * @param BuildInterface $build
      * @return string[]
      */
-    private function buildClassMap()
+    public function buildCombinedClassMap($build = NULL)
     {
         $classMap = array();
-        // $map = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->map));
-        foreach ($this->map as $paths) {
-            foreach ($paths as $path) {
-                foreach (ClassMapGenerator::createMap($path) as $class => $file) {
-                    $classMap[$class] = $file;
-                }
-            }
+        foreach ($this->sources as $source) {
+            $classMap += $source->buildClassMap($build);
         }
         ksort($classMap);
         return $classMap;
@@ -97,5 +126,37 @@ class Classmap extends AbstractPlugin
 
 
 PSR4;
+    }
+
+    /**
+     * @return string[]
+     *   Paths to scan for class map.
+     */
+    function getClassmapPaths()
+    {
+        $pathsAll = array();
+        foreach ($this->map as $paths) {
+            foreach ($paths as $path) {
+                $pathsAll[] = $path;
+            }
+        }
+        return $pathsAll;
+    }
+
+    /**
+     * @param BuildInterface $build
+     * @return string[]
+     *   Class map.
+     */
+    function buildClassMap(BuildInterface $build = NULL)
+    {
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->map));
+        $classMap = array();
+        foreach ($iterator as $dir) {
+            foreach (ClassMapGenerator::createMap($dir) as $class => $path) {
+                $classMap[$class] = $path;
+            }
+        }
+        return $classMap;
     }
 }

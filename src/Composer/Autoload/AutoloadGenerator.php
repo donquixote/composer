@@ -16,6 +16,7 @@ use Composer\Config;
 use Composer\EventDispatcher\EventDispatcher;
 use Composer\Installer\InstallationManager;
 use Composer\Package\AliasPackage;
+use Composer\Package\Link;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
@@ -54,7 +55,8 @@ class AutoloadGenerator
     {
         $this->eventDispatcher->dispatchScript(ScriptEvents::PRE_AUTOLOAD_DUMP);
 
-        $plugins = $this->createPreparedPlugins($localRepo, $mainPackage, $installationManager);
+        $plugins = $this->createPlugins($scanPsr0Packages);
+        $this->preparePlugins($plugins, $localRepo, $mainPackage, $installationManager);
 
         $build = new Build($config, $targetDir, $suffix);
 
@@ -62,22 +64,32 @@ class AutoloadGenerator
             $plugin->generate($build);
         }
 
-        foreach ($build->generateFiles() as $file => $contents) {
+        foreach ($files = $build->generateFiles() as $file => $contents) {
             file_put_contents($file, $contents);
         }
+
+        // Use stream_copy_to_stream instead of copy,
+        // to work around https://bugs.php.net/bug.php?id=64634
+        $sourceLoader = fopen(__DIR__ . '/ClassLoader.php', 'r');
+        $targetLoader = fopen($build->getTargetDir() . '/ClassLoader.php', 'w+');
+        stream_copy_to_stream($sourceLoader, $targetLoader);
+        fclose($sourceLoader);
+        fclose($targetLoader);
+        unset($sourceLoader, $targetLoader);
+
+        $this->eventDispatcher->dispatchScript(ScriptEvents::POST_AUTOLOAD_DUMP);
     }
 
     /**
+     * @param Plugin\PluginInterface[] $plugins
      * @param InstalledRepositoryInterface $localRepo
      * @param PackageInterface $mainPackage
      * @param InstallationManager $installationManager
      *
      * @return Plugin\PluginInterface[]
      */
-    protected function createPreparedPlugins(InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage, InstallationManager $installationManager)
+    protected function preparePlugins(array $plugins, InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage, InstallationManager $installationManager)
     {
-        $plugins = $this->createPlugins();
-
         // Let plugins know about the main package.
         foreach ($plugins as $plugin) {
             $plugin->addPackage($mainPackage, '', true);
@@ -94,8 +106,6 @@ class AutoloadGenerator
                 $plugin->addPackage($package, $installPath, false);
             }
         }
-
-        return $plugins;
     }
 
     /**
@@ -362,19 +372,6 @@ EOF;
         return array('psr-0' => $psr0, 'psr-4' => $psr4, 'classmap' => $classmap, 'files' => $files);
     }
 
-
-
-    /**
-     * Registers an autoloader based on an autoload map returned by parseAutoloads
-     *
-     * @param  PackageInterface[] $autoloads see parseAutoloads return value
-     * @return ClassLoader
-     */
-    public function _createLoaderFromPackages(array $packages)
-    {
-
-    }
-
     /**
      * Registers an autoloader based on an autoload map returned by parseAutoloads
      *
@@ -405,6 +402,7 @@ EOF;
         $includePaths = array();
 
         foreach ($packageMap as $item) {
+            /** @var PackageInterface $package */
             list($package, $installPath) = $item;
 
             if (null !== $package->getTargetDir() && strlen($package->getTargetDir()) > 0) {
@@ -418,7 +416,7 @@ EOF;
         }
 
         if (!$includePaths) {
-            return;
+            return NULL;
         }
 
         $includePathsCode = '';
@@ -644,6 +642,7 @@ FOOTER;
         $autoloads = array();
 
         foreach ($packageMap as $item) {
+            /** @var PackageInterface $package */
             list($package, $installPath) = $item;
 
             $autoload = $package->getAutoload();
@@ -699,15 +698,20 @@ FOOTER;
         $indexes = array();
 
         foreach ($packageMap as $position => $item) {
-            $mainName = $item[0]->getName();
-            $names = array_merge(array_fill_keys($item[0]->getNames(), $mainName), $names);
+            /** @var PackageInterface $package */
+            $package = $item[0];
+            $mainName = $package->getName();
+            $names = array_merge(array_fill_keys($package->getNames(), $mainName), $names);
             $names[$mainName] = $mainName;
             $indexes[$mainName] = $positions[$mainName] = $position;
         }
 
         foreach ($packageMap as $item) {
-            $position = $positions[$item[0]->getName()];
-            foreach (array_merge($item[0]->getRequires(), $item[0]->getDevRequires()) as $link) {
+            /** @var PackageInterface $package */
+            $package = $item[0];
+            $position = $positions[$package->getName()];
+            /** @var Link $link */
+            foreach (array_merge($package->getRequires(), $package->getDevRequires()) as $link) {
                 $target = $link->getTarget();
                 if (!isset($names[$target])) {
                     continue;
@@ -739,18 +743,28 @@ FOOTER;
     }
 
     /**
+     * @param bool $scanPsr0Packages
+     *
      * @return Plugin\PluginInterface[]
      */
-    protected function createPlugins() {
-        return array(
+    protected function createPlugins($scanPsr0Packages) {
+        $plugins = array(
             new Plugin\CreateLoader,
             new Plugin\IncludePaths,
-            new Plugin\Psr0,
-            new Plugin\Psr4,
-            new Plugin\Classmap,
+            $psr0 = new Plugin\Psr0,
+            $psr4 = new Plugin\Psr4,
+            $classmap = new Plugin\Classmap($scanPsr0Packages),
+            new Plugin\UseGlobalIncludePath,
             new Plugin\TargetDirLoader,
             new Plugin\RegisterLoader,
             new Plugin\Files,
         );
+        if ($scanPsr0Packages) {
+            $classmap->addClassmapSource($psr0);
+            $classmap->addClassmapSource($psr4);
+        }
+        $classmap->addClassmapSource($classmap);
+
+        return $plugins;
     }
 }
